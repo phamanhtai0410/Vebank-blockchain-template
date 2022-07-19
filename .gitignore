@@ -1,0 +1,11 @@
+env
+node_modules
+build
+artifacts
+buildV1
+test.log
+keystore
+contracts/ipfs*
+contracts/.deps*
+contracts/dependencies*
+migrations/*
