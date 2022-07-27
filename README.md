@@ -1,7 +1,7 @@
 A. Required:
 ====
 
-B. Money:
+B. Deploy:
 ======
 
     Address of factory 
