@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// Power by: Meta Super Pet
+// Power by: VeBank
 
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -9,13 +9,13 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
- * User buy IDO (public sale) using BUSD on Dapp.
- * Maximum 1,000,000 token release for IDO on Dapp. Each user buy fixed 100 BUSD.
- * Whitelist user will buy first, then FCFS until sale out 1,000,000 token.
- * After buy, token will be release in smartcontract MSPPublicSaleVesting with 20% at TGE, then 16% monthly.
+ * User buy IDO (public sale) using VUSD on Dapp.
+ * Maximum 1,000,000 token release for IDO on Dapp. Each user buy fixed 100 VUSD.
+ * Whitelist user will buy first, then FCFS until sale out 30,000,000 token.
+ * After buy, token will be release in smartcontract VBPublicSaleVesting with 20% at TGE, then vesting for 6 months.
  */
 
-contract MSPIdo is
+contract VEUSDIdo is
     AccessControlUpgradeable,
     OwnableUpgradeable {
 
@@ -26,11 +26,11 @@ contract MSPIdo is
     bytes32 public constant DESIGNER_ROLE = keccak256("DESIGNER_ROLE");
     bytes32 public constant WHITELIST_ROLE = keccak256("WHITELIST_ROLE");
 
-    uint public constant TOKEN_DECIMALS = 10 ** 18;
-    // Each user can buy fixed value. 100 * TOKEN_DECIMALS for 100 BUSD
+    uint public constant TOKEN_DECIMALS = 10 ** 6;
+    // Each user can buy fixed value. 100 * TOKEN_DECIMALS for 100 VEUSD
     uint256 public constant AMOUNT_PER_USER = 100 * TOKEN_DECIMALS;
-    // Maximum BUSD after token sold out on dapp. 45000 * TOKEN_DECIMALS for  45,000 BUSD.
-    uint256 public constant MAX_IDO_VALUE = 45000 * TOKEN_DECIMALS;
+    // Maximum BUSD after token sold out on dapp. 900000 * TOKEN_DECIMALS for  900,000 VEUSD.
+    uint256 public constant MAX_IDO_VALUE = 900000 * TOKEN_DECIMALS;
 
     // BUSD addr
     IERC20 public coinToken;
@@ -67,7 +67,7 @@ contract MSPIdo is
     }
 
     /**
-    * @param _coinToken input valid addr MSP.
+    * @param _coinToken input valid addr VB.
     * @param _idoStartAt input 1651140000 for 28/04/2022 10:00:00 UTC.
     * @param _idoEndAt input 1651168800, after 8h from start time.
     */
@@ -127,7 +127,7 @@ contract MSPIdo is
             require(whiteList[to] >= AMOUNT_PER_USER, "User not in IDO whitelist");
         }
         require(idoValue + AMOUNT_PER_USER <= MAX_IDO_VALUE, "IDO sold out");
-        require(idoUsers[to].amount == 0, "User already bought");
+        require(idoUsers[to].amount == AMOUNT_PER_USER, "User already bought");
                 
         address owner = address(this);
         

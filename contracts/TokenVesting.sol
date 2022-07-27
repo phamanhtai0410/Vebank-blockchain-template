@@ -83,11 +83,11 @@ interface IERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-abstract contract MSPVesting is BEPOwnable {
+abstract contract TokenVesting is BEPOwnable {
   using SafeMath for uint256;
 
-  // Address of MSP Token.
-  IERC20 public MSPToken;
+  // Address of VB Token.
+  IERC20 public VBToken;
 
   // Starting timestamp of vesting
   // Will be used as a starting point for all dates calculations.
@@ -97,14 +97,15 @@ abstract contract MSPVesting is BEPOwnable {
   // Vesting duration in month
   uint256 public monthlyDuration;
 
+  // Vesting duration in month
+  uint256 public vestingMonths;
+
   // seconds each month. This number should be a constant, but we make it mutable for easy testing
   uint256 internal  SECONDS_PER_MONTH;
 
   // vestingCliff is the Cliff from vestingStartAt, in seconds
   uint256 public vestingCliff;
 
-  // Percent of vested token which can be claimed per month;
-  uint256 public percentUnleasePerMonth;
 
   // Percent of vested token which can be claimed at TGE;
   uint256 public percentClaimAtTGE;
@@ -120,23 +121,30 @@ abstract contract MSPVesting is BEPOwnable {
     uint256 claimedAtTGE; // indicate how much this Beneficiary already claimed at TGE
   }
 
+
+  struct infoBeneficiary {
+    address addressBeneficiary;
+    uint256 initialBalance;
+  }
+
   // beneficiaries tracks all beneficiary and store data in storage
   mapping(address => Beneficiary) public beneficiaries;
 
-  // Event raised on each successful withdraw.
+  infoBeneficiary[]  public listBeneficiaries ;
+
+  // Event raised on each successful withdraw.xf
   event Claim(address beneficiary, uint256 amount, uint256 timestamp);
 
   // Event raised on each desposit
   event Deposit(address beneficiary, uint256 initialBalance, uint256 timestamp);
 
   // @dev constructor creates the vesting contract
-  // @param _token Address of MSP token
+  // @param _token Address of VB token
   // @param _owner Address of owner of this contract, a.k.a the CEO
   // @param _vestingStartAt the starting timestamp of vesting , in seconds.
   // @param _monthlyDuration the duration since monthlyStartAt until the vesting ends, in months.
   // @param _percentClaimAtTGE the percent of vested token that can be claimed after TGE. input 7 for 7%
   // @param _vestingCliff the cooldown period after _vestingStartAt, so that the monthly vesting will start, in seconds.
-  // @param _percentUnleasePerMonth the percent of vested token which can be claimed per month;
   // @param _secondPerMonth the second per month. Each month 30 days
   constructor(
     address _token,
@@ -145,21 +153,20 @@ abstract contract MSPVesting is BEPOwnable {
     uint256 _monthlyDuration,
     uint256 _percentClaimAtTGE,
     uint256 _vestingCliff,
-    uint256 _percentUnleasePerMonth,
     uint256 _secondPerMonth
   ) {
     require(_token != address(0), "zero-address");
     require(_owner != address(0), "zero-address");
-    require(_percentClaimAtTGE + _monthlyDuration * _percentUnleasePerMonth <= 100, "Invalid params");
+    require(_percentClaimAtTGE <= 100, "Invalid params");
 
-    MSPToken = IERC20(_token);
+    VBToken = IERC20(_token);
     _transferOwnership(_owner);
     vestingStartAt = _vestingStartAt;
     monthlyDuration = _monthlyDuration;
     percentClaimAtTGE = _percentClaimAtTGE;
     vestingCliff = _vestingCliff;
-    percentUnleasePerMonth = _percentUnleasePerMonth;
     SECONDS_PER_MONTH = _secondPerMonth;
+    vestingMonths = _monthlyDuration ;
     monthlyStartAt = vestingStartAt.add(vestingCliff); // NOTE: the first monthly claim with be 1 month (SECONDS_PER_MONTH) AFTER this timestamp.
   }
 
@@ -174,14 +181,21 @@ abstract contract MSPVesting is BEPOwnable {
     require(_beneficiary != address(0), "zero-address");
     // Based on ERC20 standard, to transfer funds to this contract,
     // the owner must first call approve() to allow to transfer token to this contract.
-    require(MSPToken.transferFrom(_msgSender(), address(this), _amount), "cannot-transfer-token-to-this-contract");
+    require(VBToken.transferFrom(_msgSender(), address(this), _amount), "cannot-transfer-token-to-this-contract");
 
     // update storage data
     Beneficiary storage bf = beneficiaries[_beneficiary];
     bf.initialBalance = bf.initialBalance.add(_amount);
+    infoBeneficiary memory lb;
+    lb.addressBeneficiary = _beneficiary;
+    lb.initialBalance = bf.initialBalance;
+    listBeneficiaries.push(lb);
 
     emit Deposit(_beneficiary, bf.initialBalance, block.timestamp);
   }
+  // function getListBeneficiaries(uint256 _index) public view onlyOwner returns(infoBeneficiary memory){
+  //   return listBeneficiaries[_index];
+  // }
 
   // @dev Claim withraws the vested token and sends beneficiary
   // Only the owner or the beneficiary can call this function
@@ -198,7 +212,7 @@ abstract contract MSPVesting is BEPOwnable {
     (monthsVestable, tokenVestable, tokenClaimedAtTGE) = calculateClaimable(_beneficiary);
     require(tokenVestable > 0, "nothing-to-be-vested");
 
-    require(MSPToken.transfer(_beneficiary, tokenVestable), "fail-to-transfer-token");
+    require(VBToken.transfer(_beneficiary, tokenVestable), "fail-to-transfer-token");
 
     // update data in blockchain storage
     bf.monthsClaimed = bf.monthsClaimed.add(monthsVestable);
@@ -255,9 +269,9 @@ abstract contract MSPVesting is BEPOwnable {
       uint256 remaining = bf.initialBalance.sub(bf.totalClaimed);
       return (monthlyDuration.sub(bf.monthsClaimed), remaining, _tokenClaimedAtTGE);
     } else {
-      //uint256 _amountForMonthly = bf.initialBalance.sub(_tokenClaimedAtTGE);
+      uint256 _amountForMonthly = bf.initialBalance.sub(_tokenClaimedAtTGE);
       uint256 _monthsClaimedable = elapsedMonths.sub(bf.monthsClaimed);
-      uint256 _amountClaimedablePerMonth = bf.initialBalance.mul(percentUnleasePerMonth).div(100);
+      uint256 _amountClaimedablePerMonth = _amountForMonthly.div(vestingMonths);
       _tokenClaimable = _tokenClaimable + _monthsClaimedable.mul(_amountClaimedablePerMonth);
       return (_monthsClaimedable, _tokenClaimable, _tokenClaimedAtTGE);
     }
@@ -286,20 +300,25 @@ abstract contract MSPVesting is BEPOwnable {
     return (bf.initialBalance, bf.monthsClaimed, bf.totalClaimed, bf.claimedAtTGE, _tokenClaimable);
   }
 
+  //view all beneficiaries 
+  // function listBeneficiaries() external onlyOwner returns(){
+  //   Beneficiary storage bf = beneficiaries[_beneficiary];
+  // }
+
   // @dev function for emergency, withraw all token in this vesting contract to the owner wallet
    function withdrawAll() external onlyOwner {
-        MSPToken.transfer(_msgSender(), MSPToken.balanceOf(address(this)));
+        VBToken.transfer(_msgSender(), VBToken.balanceOf(address(this)));
     }
 
   // @dev function for emergency, withraw token of a beneficiary to the owner wallet
    function withdrawBeneficiary(address _beneficiary) external onlyOwner {
 
-        // MSPToken.transfer(_msgSender(), MSPToken.balanceOf(address(_beneficiary)));
+        // VBToken.transfer(_msgSender(), VBToken.balanceOf(address(_beneficiary)));
         Beneficiary storage bf = beneficiaries[_beneficiary];
         uint256 remaining = bf.initialBalance.sub(bf.totalClaimed);
 
         // send remaining token to the owner
-        MSPToken.transfer(_msgSender(), remaining);
+        VBToken.transfer(_msgSender(), remaining);
 
         // update data of this beneficiary, so the owner cannot withraw this amount again.
         bf.totalClaimed = bf.initialBalance;
