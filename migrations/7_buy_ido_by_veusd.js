@@ -5,6 +5,7 @@ const VEUSDIdo = artifacts.require("VEUSDIdo");
 const VEUSD = artifacts.require("VEUSD");
 const DEPLOY_NEW = false;
 
+//parameter function initialize, must run first
 const _coinToken = process.env.iVEUSD; // VEUSD address 
 const _idoStartAt = 1658894595 ; // Wednesday, July 27, 2022 4:03:15 AM
 const _idoEndAt   = 1658980995 ; // Thursday, July 28, 2022 4:03:15 AM
@@ -30,6 +31,7 @@ module.exports = async function (deployer) {
         await iVEUSDIdo.buy();
         console.log("bought!");
     }
+    //must run first
     async function initialize(){
         if ((await iVEUSDIdo.coinToken.call()).toString() != "0x0000000000000000000000000000000000000000"){
             console.log("contract is already initialized")
@@ -62,7 +64,7 @@ module.exports = async function (deployer) {
     // await console.log((iVEUSDIdo.enableIdo.call()).toString())
     // await approve_Pool("10000000000000");
     // await iVEUSD.transfer("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA","200000000");
-    await buy();
+    // await buy();
     // let tata = (await iVEUSDIdo.idoUsers.call("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA")).buyAt.toString() ; 
     // console.log("amount", tata)
     // await withdraw();

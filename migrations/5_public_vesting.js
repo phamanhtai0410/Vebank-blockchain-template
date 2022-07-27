@@ -67,8 +67,8 @@ module.exports = async function (deployer) {
       console.log("addressBeneficiary: ", addressBeneficiary)
       console.log("initialBalance: ",initialBalance)
     }
-    await approve_Pool("1000000000000000000000000000");
-    await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","1100000000000000000")
+    // await approve_Pool("1000000000000000000000000000");
+    // await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","1100000000000000000")
     //await get_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3");
     //await add_Beneficiary("0x3afa0314a9c8748b64ed93ee6b413a5797ed9aef","16000000000000000000")
     //await add_Beneficiary("0x9a773a0c1710a5afd9d25eb5b0d2dca2239663e6","13000000000000000000")

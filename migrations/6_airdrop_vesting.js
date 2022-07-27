@@ -73,7 +73,7 @@ module.exports = async function (deployer) {
     // await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","1100000000000000000")
     // await get_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3");
     // await add_Beneficiary("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA","16000000000000000000")
-    await get_Beneficiary("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA");
+    // await get_Beneficiary("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA");
     //await add_Beneficiary("0x9a773a0c1710a5afd9d25eb5b0d2dca2239663e6","13000000000000000000")
     //await add_Beneficiary("0x146b47ba01cd21e8c2db6a7a305cbea3aa70783e","14000000000000000000")
     //await add_Beneficiary("0xf44d0fdb0c02b8683aCf300a7a892a30aCb17d84","16000000000000000000")

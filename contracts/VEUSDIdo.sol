@@ -127,7 +127,7 @@ contract VEUSDIdo is
             require(whiteList[to] >= AMOUNT_PER_USER, "User not in IDO whitelist");
         }
         require(idoValue + AMOUNT_PER_USER <= MAX_IDO_VALUE, "IDO sold out");
-        require(idoUsers[to].amount == AMOUNT_PER_USER, "User already bought");
+        require(idoUsers[to].amount == 0, "User already bought");
                 
         address owner = address(this);
         
