@@ -205,11 +205,11 @@ abstract contract TokenVesting is BEPOwnable {
     uint256 monthsVestable;
     uint256 tokenVestable;
     uint256 tokenClaimedAtTGE;
-
+    uint256 _nextClaimable;
     Beneficiary storage bf = beneficiaries[_beneficiary];
     require(bf.initialBalance > bf.totalClaimed, "nothing-to-be-vested");
     
-    (monthsVestable, tokenVestable, tokenClaimedAtTGE) = calculateClaimable(_beneficiary);
+    (monthsVestable, tokenVestable, tokenClaimedAtTGE, _nextClaimable) = calculateClaimable(_beneficiary);
     require(tokenVestable > 0, "nothing-to-be-vested");
 
     require(VBToken.transfer(_beneficiary, tokenVestable), "fail-to-transfer-token");
@@ -230,16 +230,16 @@ abstract contract TokenVesting is BEPOwnable {
   // claimable token each month is rounded if it is a decimal number
   // So the rest of the token will be claimed on the last month (the duration is over)
   // @param _beneficiary Address of the beneficiary
-  function calculateClaimable(address _beneficiary) private view returns (uint256, uint256, uint256) {
+  function calculateClaimable(address _beneficiary) private view returns (uint256, uint256, uint256, uint256) {
     uint256 _now = block.timestamp;
-
+    uint256 _nextClaimable = vestingStartAt;
     // return 0 for any claim before the starting time
     if (_now < vestingStartAt) {
-      return (0, 0, 0);
+      return (0, 0, 0,_nextClaimable);
     }
-
-    uint256 _tokenClaimable = 0;
-    uint256 _tokenClaimedAtTGE = 0; 
+    _nextClaimable = monthlyStartAt + SECONDS_PER_MONTH;
+    uint256 _tokenClaimable;
+    uint256 _tokenClaimedAtTGE; 
 
     Beneficiary storage bf = beneficiaries[_beneficiary];
     require(bf.initialBalance > 0, "beneficiary-not-found");
@@ -253,7 +253,8 @@ abstract contract TokenVesting is BEPOwnable {
     }
 
     if (_now < monthlyStartAt) {
-      return (0, _tokenClaimable, _tokenClaimedAtTGE);
+
+      return (0, _tokenClaimable, _tokenClaimedAtTGE, _nextClaimable);
     }
 
     uint256 elapsedTime = _now.sub(monthlyStartAt);
@@ -261,19 +262,20 @@ abstract contract TokenVesting is BEPOwnable {
 
     // If it does not pass the first month yet
     if (elapsedMonths < 1) {
-      return (0, _tokenClaimable, _tokenClaimedAtTGE);
+      return (0, _tokenClaimable, _tokenClaimedAtTGE, _nextClaimable);
     }
 
     // If over vesting duration, get all remain tokens
     if (elapsedMonths >= monthlyDuration) {
       uint256 remaining = bf.initialBalance.sub(bf.totalClaimed);
-      return (monthlyDuration.sub(bf.monthsClaimed), remaining, _tokenClaimedAtTGE);
+      return (monthlyDuration.sub(bf.monthsClaimed), remaining, _tokenClaimedAtTGE, _nextClaimable);
     } else {
+      _nextClaimable = _nextClaimable + SECONDS_PER_MONTH.mul(elapsedMonths);
       uint256 _amountForMonthly = bf.initialBalance.sub(_tokenClaimedAtTGE);
       uint256 _monthsClaimedable = elapsedMonths.sub(bf.monthsClaimed);
       uint256 _amountClaimedablePerMonth = _amountForMonthly.div(vestingMonths);
       _tokenClaimable = _tokenClaimable + _monthsClaimedable.mul(_amountClaimedablePerMonth);
-      return (_monthsClaimedable, _tokenClaimable, _tokenClaimedAtTGE);
+      return (_monthsClaimedable, _tokenClaimable, _tokenClaimedAtTGE, _nextClaimable);
     }
   }
 
@@ -286,7 +288,8 @@ abstract contract TokenVesting is BEPOwnable {
       uint256 monthsClaimed,
       uint256 totalClaimed,
       uint256 claimedAtTGE,
-      uint256 tokenClaimable
+      uint256 tokenClaimable,
+      uint256 nextClaimable
     )
   {
     Beneficiary storage bf = beneficiaries[_beneficiary];
@@ -295,9 +298,10 @@ abstract contract TokenVesting is BEPOwnable {
     uint256 _monthsClaimable;
     uint256 _tokenClaimable;
     uint256 _tokenClaimedAtTGE;
-    (_monthsClaimable, _tokenClaimable, _tokenClaimedAtTGE) = calculateClaimable(_beneficiary);
+    uint256 _nextClaimable ;
+    (_monthsClaimable, _tokenClaimable, _tokenClaimedAtTGE,_nextClaimable) = calculateClaimable(_beneficiary);
 
-    return (bf.initialBalance, bf.monthsClaimed, bf.totalClaimed, bf.claimedAtTGE, _tokenClaimable);
+    return (bf.initialBalance, bf.monthsClaimed, bf.totalClaimed, bf.claimedAtTGE, _tokenClaimable,_nextClaimable);
   }
 
   // @dev function for emergency, withraw all token in this vesting contract to the owner wallet

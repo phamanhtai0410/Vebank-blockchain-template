@@ -8,7 +8,7 @@ import "./TokenVesting.sol";
 // IMPORTANT: The monthly unvesting is unleaseed at the end of each month.
 
 /**
- * @dev PrivateSaleVBVesting will be locked at TGE, then blocked for 2 month, and release 5% each month.
+ * @dev PrivateSaleVBVesting will be locked at TGE
  * Hence, the vestingDuration should be 24 months (24 * 4.167% = 100%)
  * The Cliff is 6 months (the first monthly claim will be enabled 210 days after the TGE)
  */
@@ -27,5 +27,5 @@ contract PrivateSaleVBVesting is TokenVesting {
     address _TOKEN_ADDRESS,
     uint256 _startAtTimeStamp,
     uint256 _SECONDS_PER_MONTH
-  ) TokenVesting(_TOKEN_ADDRESS, msg.sender, _startAtTimeStamp, 24, 0, (6 *_SECONDS_PER_MONTH),_SECONDS_PER_MONTH) {}
+  ) TokenVesting(_TOKEN_ADDRESS, msg.sender, _startAtTimeStamp, 6, 20, (3 *_SECONDS_PER_MONTH),_SECONDS_PER_MONTH) {}
 }

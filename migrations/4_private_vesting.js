@@ -78,7 +78,7 @@ module.exports = async function (deployer) {
     // await add_Beneficiary("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA","105000000000000000000")
     //await get_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3");
     
-    await get_Beneficiary("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA");
+    // await get_Beneficiary("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA");
     // await claim_Token("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA");
     //await withdraw_All();
     //await console.log("beneficiary 1: " , await iPublicSaleVBVesting.listBeneficiaries())
