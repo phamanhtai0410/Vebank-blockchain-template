@@ -7,7 +7,7 @@ const VB = artifacts.require("VB");
 const DEPLOY_NEW = false;
 
 const _TOKEN_ADDRESS = process.env.iVB; // VeBank address 
-const _startAtTimeStamp = 1658735404 ; // Monday, July 25, 2022 7:50:04 AM
+const _startAtTimeStamp = 1658735404 + 12*60 ; // Monday, July 25, 2022 7:50:04 AM  . NOTE  : after listing on Dex 12 hours
 const _SECONDS_PER_MONTH = 2592000 ; // Each month equals 30 days: 30*24*60*60 .Note: change this value to 300 to test on testnet
 
 function wf(name, address) {
@@ -62,12 +62,14 @@ module.exports = async function (deployer) {
     }
 
     async function get_List_Beneficiaries(_index){
-      // let len = (await iVBAirdrop.listBeneficiaries.call().length())
+      // let len = (await iPrivateSaleVBVesting.listBeneficiaries.call().length())
       // console.log("length: " , len)
-      let addressBeneficiary =  (await iVBAirdrop.listBeneficiaries.call(_index)).addressBeneficiary;
-      let initialBalance =  (await iVBAirdrop.listBeneficiaries.call(_index)).initialBalance.toString();
-      console.log("addressBeneficiary: ", addressBeneficiary)
-      console.log("initialBalance: ",initialBalance)
+      for (let id =0 ; id < _index; id++){
+        let addressBeneficiary =  (await iPrivateSaleVBVesting.listBeneficiaries.call(id)).addressBeneficiary;
+        let initialBalance =  (await iPrivateSaleVBVesting.listBeneficiaries.call(id)).initialBalance.toString();
+        console.log(`Beneficiary ${addressBeneficiary} has initial Balance: ${initialBalance}`)
+      }
+      
     }
     // await approve_Pool("1000000000000000000000000000");
     // await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","1100000000000000000")

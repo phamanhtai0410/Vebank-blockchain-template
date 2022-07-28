@@ -6,8 +6,8 @@ const VB = artifacts.require("VB");
 const DEPLOY_NEW = false;
 
 const _TOKEN_ADDRESS = process.env.iVB; // VeBank address 
-const _startAtTimeStamp = 1658735404 ; // Monday, July 25, 2022 7:50:04 AM
-const _SECONDS_PER_MONTH = 2592000 ; // Each month equals 30 days: 30*24*60*60 .Note: change this value to 300 to test on testnet 
+const _startAtTimeStamp = 1658979170 ; // Thursday, July 28, 2022 3:32:50 AM
+const _SECONDS_PER_MONTH = 60 ; // Each month equals 30 days: 30*24*60*60 .Note: change this value to 300 to test on testnet 
 
 function wf(name, address) {
   fs.appendFileSync('.env', name + "=" + address);
@@ -26,9 +26,10 @@ module.exports = async function (deployer) {
       await iVB.approve(process.env.iPrivateSaleVBVesting, _amount);
       console.log("Approved!")
     }
+    // to add Beneficiary must be approve contract, call approve_Pool(_amount)
     async function add_Beneficiary(_beneficiary, _amount ){
       await iPrivateSaleVBVesting.addBeneficiary(_beneficiary, _amount );
-      console.log("Beneficiary: ",_beneficiary);
+      console.log(`Beneficiary ${_beneficiary} has been added with amount: ${_amount}`);
     }
     async function revoke_Beneficiary(_beneficiary){
 
@@ -62,25 +63,28 @@ module.exports = async function (deployer) {
     async function get_List_Beneficiaries(_index){
       // let len = (await iPrivateSaleVBVesting.listBeneficiaries.call().length())
       // console.log("length: " , len)
-      let addressBeneficiary =  (await iPrivateSaleVBVesting.listBeneficiaries.call(_index)).addressBeneficiary;
-      let initialBalance =  (await iPrivateSaleVBVesting.listBeneficiaries.call(_index)).initialBalance.toString();
-      console.log("addressBeneficiary: ", addressBeneficiary)
-      console.log("initialBalance: ",initialBalance)
+      for (let id =0 ; id < _index; id++){
+        let addressBeneficiary =  (await iPrivateSaleVBVesting.listBeneficiaries.call(id)).addressBeneficiary;
+        let initialBalance =  (await iPrivateSaleVBVesting.listBeneficiaries.call(id)).initialBalance.toString();
+        console.log(`Beneficiary ${addressBeneficiary} has initial Balance: ${initialBalance}`)
+      }
+      
     }
-    await approve_Pool("1000000000000000000000000000");
-    // await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","1100000000000000000")
+    // await approve_Pool("100000000000000000000000");
+    // await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","101000000000000000000")
+    // await add_Beneficiary("0x3afa0314a9c8748b64ed93ee6b413a5797ed9aef","102000000000000000000")
+    // await add_Beneficiary("0x9a773a0c1710a5afd9d25eb5b0d2dca2239663e6","103000000000000000000")
+    // await add_Beneficiary("0x146b47ba01cd21e8c2db6a7a305cbea3aa70783e","104000000000000000000")
+    // await add_Beneficiary("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA","105000000000000000000")
     //await get_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3");
-    //await add_Beneficiary("0x3afa0314a9c8748b64ed93ee6b413a5797ed9aef","16000000000000000000")
-    //await add_Beneficiary("0x9a773a0c1710a5afd9d25eb5b0d2dca2239663e6","13000000000000000000")
-    //await add_Beneficiary("0x146b47ba01cd21e8c2db6a7a305cbea3aa70783e","14000000000000000000")
-    //await add_Beneficiary("0xf44d0fdb0c02b8683aCf300a7a892a30aCb17d84","16000000000000000000")
-    //await get_Beneficiary("0xf44d0fdb0c02b8683aCf300a7a892a30aCb17d84");
-    //await claim_Token("0xf44d0fdb0c02b8683aCf300a7a892a30aCb17d84");
+    
+    await get_Beneficiary("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA");
+    // await claim_Token("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA");
     //await withdraw_All();
     //await console.log("beneficiary 1: " , await iPublicSaleVBVesting.listBeneficiaries())
     //await const {a,b} = test;
     //await console.log(a)
-    //await get_List_Beneficiaries(7)
+    // await get_List_Beneficiaries(5)
 
   }
 };

@@ -9,8 +9,8 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
- * User buy IDO (public sale) using VUSD on Dapp.
- * Maximum 1,000,000 token release for IDO on Dapp. Each user buy fixed 100 VUSD.
+ * User buy IDO (public sale) using WVET on Dapp.
+ * Maximum 1,000,000 token release for IDO on Dapp. Each user buy fixed 100 WVET.
  * Whitelist user will buy first, then FCFS until sale out 30,000,000 token.
  * After buy, token will be release in smartcontract VBPublicSaleVesting with 20% at TGE, then vesting for 6 months.
  */
@@ -26,7 +26,7 @@ contract WVETIdo is
     bytes32 public constant DESIGNER_ROLE = keccak256("DESIGNER_ROLE");
     bytes32 public constant WHITELIST_ROLE = keccak256("WHITELIST_ROLE");
 
-    uint public constant TOKEN_DECIMALS = 10 ** 6;
+    uint public constant TOKEN_DECIMALS = 10 ** 18;
     // Each user can buy fixed value. 100 * TOKEN_DECIMALS for 100 WVET
     uint256 public constant AMOUNT_PER_USER = 100 * TOKEN_DECIMALS;
     // Maximum BUSD after token sold out on dapp. 900000 * TOKEN_DECIMALS for  900,000 WVET.

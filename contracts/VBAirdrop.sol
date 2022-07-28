@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Power by: Meta Super Pet
+// Power by: VeBank
 
 pragma solidity ^0.8.0;
 
@@ -8,7 +8,7 @@ import "./TokenVesting.sol";
 // IMPORTANT: The monthly unvesting is unleaseed at the end of each month.
 
 /**
- * @dev VBAirdrop will be claimed 10% after TGE 1 week, release 15% each month
+ * @dev VBAirdrop will be claimed 10% after listing on Dex 12 hours, release 15% each month
  * The vestingDuration is 6 months. Each month is 15%.
  * No cliff.
  */

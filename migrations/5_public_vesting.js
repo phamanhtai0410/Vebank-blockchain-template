@@ -60,12 +60,14 @@ module.exports = async function (deployer) {
       console.log("info claimClaimable : ", tokenClaimable.toString());
     }
     async function get_List_Beneficiaries(_index){
-      // let len = (await iPublicSaleVBVesting.listBeneficiaries.call().length())
+      // let len = (await iPrivateSaleVBVesting.listBeneficiaries.call().length())
       // console.log("length: " , len)
-      let addressBeneficiary =  (await iPublicSaleVBVesting.listBeneficiaries.call(_index)).addressBeneficiary;
-      let initialBalance =  (await iPublicSaleVBVesting.listBeneficiaries.call(_index)).initialBalance.toString();
-      console.log("addressBeneficiary: ", addressBeneficiary)
-      console.log("initialBalance: ",initialBalance)
+      for (let id =0 ; id < _index; id++){
+        let addressBeneficiary =  (await iPrivateSaleVBVesting.listBeneficiaries.call(id)).addressBeneficiary;
+        let initialBalance =  (await iPrivateSaleVBVesting.listBeneficiaries.call(id)).initialBalance.toString();
+        console.log(`Beneficiary ${addressBeneficiary} has initial Balance: ${initialBalance}`)
+      }
+      
     }
     // await approve_Pool("1000000000000000000000000000");
     // await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","1100000000000000000")

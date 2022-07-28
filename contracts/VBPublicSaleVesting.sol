@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Power by: Meta Super Pet
+// Power by: VeBank
 
 pragma solidity ^0.8.0;
 

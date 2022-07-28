@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Power by: Meta Super Pet
+// Power by: VeBank
 
 pragma solidity ^0.8.0;
 
@@ -299,11 +299,6 @@ abstract contract TokenVesting is BEPOwnable {
 
     return (bf.initialBalance, bf.monthsClaimed, bf.totalClaimed, bf.claimedAtTGE, _tokenClaimable);
   }
-
-  //view all beneficiaries 
-  // function listBeneficiaries() external onlyOwner returns(){
-  //   Beneficiary storage bf = beneficiaries[_beneficiary];
-  // }
 
   // @dev function for emergency, withraw all token in this vesting contract to the owner wallet
    function withdrawAll() external onlyOwner {
