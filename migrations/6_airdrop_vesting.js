@@ -62,16 +62,16 @@ module.exports = async function (deployer) {
     }
 
     async function get_List_Beneficiaries(_index){
-      // let len = (await iPrivateSaleVBVesting.listBeneficiaries.call().length())
+      // let len = (await iVBAirdrop.listBeneficiaries.call().length())
       // console.log("length: " , len)
       for (let id =0 ; id < _index; id++){
-        let addressBeneficiary =  (await iPrivateSaleVBVesting.listBeneficiaries.call(id)).addressBeneficiary;
-        let initialBalance =  (await iPrivateSaleVBVesting.listBeneficiaries.call(id)).initialBalance.toString();
+        let addressBeneficiary =  (await iVBAirdrop.listBeneficiaries.call(id)).addressBeneficiary;
+        let initialBalance =  (await iVBAirdrop.listBeneficiaries.call(id)).initialBalance.toString();
         console.log(`Beneficiary ${addressBeneficiary} has initial Balance: ${initialBalance}`)
       }
       
     }
-    // await approve_Pool("1000000000000000000000000000");
+    await approve_Pool("1000000000000000000000000000");
     // await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","1100000000000000000")
     // await get_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3");
     // await add_Beneficiary("0xE1bBEa38Cc95240680c2ab4940c9F202C90184BA","16000000000000000000")
@@ -85,7 +85,7 @@ module.exports = async function (deployer) {
     //await console.log("beneficiary 1: " , await iPublicSaleVBVesting.listBeneficiaries())
     //await const {a,b} = test;
     //await console.log(a)
-    //await get_List_Beneficiaries(7)
+    await get_List_Beneficiaries(5)
 
   }
 };

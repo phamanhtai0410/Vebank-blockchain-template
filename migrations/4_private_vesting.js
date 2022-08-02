@@ -70,7 +70,7 @@ module.exports = async function (deployer) {
       }
       
     }
-    // await approve_Pool("100000000000000000000000");
+    await approve_Pool("100000000000000000000000");
     // await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","101000000000000000000")
     // await add_Beneficiary("0x3afa0314a9c8748b64ed93ee6b413a5797ed9aef","102000000000000000000")
     // await add_Beneficiary("0x9a773a0c1710a5afd9d25eb5b0d2dca2239663e6","103000000000000000000")
@@ -84,7 +84,7 @@ module.exports = async function (deployer) {
     //await console.log("beneficiary 1: " , await iPublicSaleVBVesting.listBeneficiaries())
     //await const {a,b} = test;
     //await console.log(a)
-    // await get_List_Beneficiaries(5)
+    await get_List_Beneficiaries(50)
 
   }
 };
