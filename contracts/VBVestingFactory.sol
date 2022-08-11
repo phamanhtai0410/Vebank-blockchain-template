@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import "./TokenVesting.sol";
 
 // IMPORTANT: The monthly unvesting is unleaseed at the end of each month (30 days), so that the Cliff is substracted by 1 month.
-// Vesting schedule and wallet base on tokenomics at 01/08/2022.
+// Vesting schedule and wallet base on tokenomics at 15/07/2022.
 
 /**
  * @dev PrivateSaleVBVesting will be locked at for 6 months.
