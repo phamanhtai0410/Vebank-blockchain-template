@@ -3,12 +3,12 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import './VIP180.sol';
 
 /** Official VeBank token (VB) smart-contract */
 
-contract VB is ERC20 {
-    constructor() ERC20("VeBank Token", "VB") {
-        _mint(msg.sender, 500 * 10 ** 6 * (10 ** 18));
+contract VB is VIP180 {
+    constructor() VIP180("VeBank Token", "VB") {
+        _mint(msg.sender, 1000 * 10 ** 6 * (10 ** 18));
     }
 }

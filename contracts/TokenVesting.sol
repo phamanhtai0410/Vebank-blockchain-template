@@ -3,91 +3,13 @@
 
 pragma solidity ^0.8.0;
 
-import "./BEP20.sol";
-
-/**
- * @dev Interface of the ERC20 standard as defined in the EIP.
- */
-interface IERC20 {
-    /**
-     * @dev Returns the amount of tokens in existence.
-     */
-    function totalSupply() external view returns (uint256);
-
-    /**
-     * @dev Returns the amount of tokens owned by `account`.
-     */
-    function balanceOf(address account) external view returns (uint256);
-
-    /**
-     * @dev Moves `amount` tokens from the caller's account to `recipient`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transfer(address recipient, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Returns the remaining number of tokens that `spender` will be
-     * allowed to spend on behalf of `owner` through {transferFrom}. This is
-     * zero by default.
-     *
-     * This value changes when {approve} or {transferFrom} are called.
-     */
-    function allowance(address owner, address spender) external view returns (uint256);
-
-    /**
-     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * IMPORTANT: Beware that changing an allowance with this method brings the risk
-     * that someone may use both the old and the new allowance by unfortunate
-     * transaction ordering. One possible solution to mitigate this race
-     * condition is to first reduce the spender's allowance to 0 and set the
-     * desired value afterwards:
-     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-     *
-     * Emits an {Approval} event.
-     */
-    function approve(address spender, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Moves `amount` tokens from `sender` to `recipient` using the
-     * allowance mechanism. `amount` is then deducted from the caller's
-     * allowance.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
-
-    /**
-     * @dev Emitted when `value` tokens are moved from one account (`from`) to
-     * another (`to`).
-     *
-     * Note that `value` may be zero.
-     */
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    /**
-     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-     * a call to {approve}. `value` is the new allowance.
-     */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-}
+import "./VIP180.sol";
 
 abstract contract TokenVesting is BEPOwnable {
   using SafeMath for uint256;
 
   // Address of VB Token.
-  IERC20 public VBToken;
+  IVIP180 public VBToken;
 
   // Starting timestamp of vesting
   // Will be used as a starting point for all dates calculations.
@@ -140,7 +62,7 @@ abstract contract TokenVesting is BEPOwnable {
 
   // @dev constructor creates the vesting contract
   // @param _token Address of VB token
-  // @param _owner Address of owner of this contract, a.k.a the CEO
+  // @param _owner Address of owner of this contract, a.k.a the CEO|CTO
   // @param _vestingStartAt the starting timestamp of vesting , in seconds.
   // @param _monthlyDuration the duration since monthlyStartAt until the vesting ends, in months.
   // @param _percentClaimAtTGE the percent of vested token that can be claimed after TGE. input 7 for 7%
@@ -159,7 +81,7 @@ abstract contract TokenVesting is BEPOwnable {
     require(_owner != address(0), "zero-address");
     require(_percentClaimAtTGE <= 100, "Invalid params");
 
-    VBToken = IERC20(_token);
+    VBToken = IVIP180(_token);
     _transferOwnership(_owner);
     vestingStartAt = _vestingStartAt;
     monthlyDuration = _monthlyDuration;
@@ -304,12 +226,12 @@ abstract contract TokenVesting is BEPOwnable {
     return (bf.initialBalance, bf.monthsClaimed, bf.totalClaimed, bf.claimedAtTGE, _tokenClaimable,_nextClaimable);
   }
 
-  // @dev function for emergency, withraw all token in this vesting contract to the owner wallet
-   function withdrawAll() external onlyOwner {
-        VBToken.transfer(_msgSender(), VBToken.balanceOf(address(this)));
-    }
+  // // @dev function for emergency, withraw all token in this vesting contract to the owner wallet or smart contract via DAO
+  //  function withdrawAll() external onlyOwner {
+  //       VBToken.transfer(_msgSender(), VBToken.balanceOf(address(this)));
+  //   }
 
-  // @dev function for emergency, withraw token of a beneficiary to the owner wallet
+  // @dev function for emergency, withraw token of a beneficiary to the owner wallet or smart contract via DAO
    function withdrawBeneficiary(address _beneficiary) external onlyOwner {
 
         // VBToken.transfer(_msgSender(), VBToken.balanceOf(address(_beneficiary)));

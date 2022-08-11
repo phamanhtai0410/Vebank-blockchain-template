@@ -2,80 +2,77 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev Interface of the BEP20 standard. Does not include
- * the optional functions; to access them see {BEP20Detailed}.
+ * @dev Interface of the VIP-180 standard as defined in the VIP.
  */
-interface IBEP20 {
-  /**
-   * @dev Returns the amount of tokens in existence.
-   */
-  function totalSupply() external view returns (uint256);
+interface IVIP180 {
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
 
-  /**
-   * @dev Returns the amount of tokens owned by `account`.
-   */
-  function balanceOf(address account) external view returns (uint256);
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
 
-  /**
-   * @dev Moves `amount` tokens from the caller's account to `recipient`.
-   *
-   * Returns a boolean value indicating whether the operation succeeded.
-   *
-   * Emits a {Transfer} event.
-   */
-  function transfer(address recipient, uint256 amount) external returns (bool);
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address recipient, uint256 amount) external returns (bool);
 
-  /**
-   * @dev Returns the remaining number of tokens that `spender` will be
-   * allowed to spend on behalf of `owner` through {transferFrom}. This is
-   * zero by default.
-   *
-   * This value changes when {approve} or {transferFrom} are called.
-   */
-  function allowance(address owner, address spender) external view returns (uint256);
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
 
-  /**
-   * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
-   *
-   * Returns a boolean value indicating whether the operation succeeded.
-   *
-   * IMPORTANT: Beware that changing an allowance with this method brings the risk
-   * that someone may use both the old and the new allowance by unfortunate
-   * transaction ordering. One possible solution to mitigate this race
-   * condition is to first reduce the spender's allowance to 0 and set the
-   *
-   * Emits an {Approval} event.
-   */
-  function approve(address spender, uint256 amount) external returns (bool);
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
 
-  /**
-   * @dev Moves `amount` tokens from `sender` to `recipient` using the
-   * allowance mechanism. `amount` is then deducted from the caller's
-   * allowance.
-   *
-   * Returns a boolean value indicating whether the operation succeeded.
-   *
-   * Emits a {Transfer} event.
-   */
-  function transferFrom(
-    address sender,
-    address recipient,
-    uint256 amount
-  ) external returns (bool);
+    /**
+     * @dev Moves `amount` tokens from `sender` to `recipient` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
-  /**
-   * @dev Emitted when `value` tokens are moved from one account (`from`) to
-   * another (`to`).
-   *
-   * Note that `value` may be zero.
-   */
-  event Transfer(address indexed from, address indexed to, uint256 value);
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
 
-  /**
-   * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-   * a call to {approve}. `value` is the new allowance.
-   */
-  event Approval(address indexed owner, address indexed spender, uint256 value);
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
 /**
@@ -254,7 +251,7 @@ library SafeMath {
  *
  * This contract is only required for intermediate, library-like contracts.
  */
-abstract contract BEPContext {
+abstract contract Context {
   // Empty internal constructor, to prevent people from mistakenly deploying
   // an instance of this contract, which should be used via inheritance.
   constructor() {}
@@ -278,7 +275,7 @@ abstract contract BEPContext {
  * `onlyOwner`, which can be applied to your functions to restrict their use to
  * the owner.
  */
-abstract contract BEPOwnable is BEPContext {
+abstract contract Ownable is Context {
   address private _owner;
 
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -348,7 +345,7 @@ abstract contract BEPOwnable is BEPContext {
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
-contract BEPPausable is BEPOwnable {
+contract Pausable is Ownable {
   event Pause();
   event Unpause();
 
@@ -390,15 +387,15 @@ contract BEPPausable is BEPOwnable {
 }
 
 /**
- * @dev Implementation of the {IBEP20} interface.
+ * @dev Implementation of the {IVIP180} interface.
  *
  * This implementation is agnostic to the way tokens are created. This means
  * that a supply mechanism has to be added in a derived contract using {_mint}.
- * For a generic mechanism see {BEP20Mintable}.
+ * For a generic mechanism see {VIP180Mintable}.
  *
  * We have followed general OpenZeppelin guidelines: functions revert instead
  * of returning `false` on failure. This behavior is nonetheless conventional
- * and does not conflict with the expectations of BEP20 applications.
+ * and does not conflict with the expectations of VIP180 applications.
  *
  * Additionally, an {Approval} event is emitted on calls to {transferFrom}.
  * This allows applications to reconstruct the allowance for all accounts just
@@ -407,9 +404,9 @@ contract BEPPausable is BEPOwnable {
  *
  * Finally, the non-standard {decreaseAllowance} and {increaseAllowance}
  * functions have been added to mitigate the well-known issues around setting
- * allowances. See {IBEP20-approve}.
+ * allowances. See {IVIP180-approve}.
  */
-contract BEP20 is BEPContext, IBEP20, BEPPausable {
+contract VIP180 is Context, IVIP180, Pausable {
   using SafeMath for uint256;
 
   mapping(address => uint256) private _balances;
@@ -419,21 +416,21 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
   uint256 private _totalSupply;
 
   /**
-   * @dev See {IBEP20-totalSupply}.
+   * @dev See {IVIP180-totalSupply}.
    */
   function totalSupply() public view override returns (uint256) {
     return _totalSupply;
   }
 
   /**
-   * @dev See {IBEP20-balanceOf}.
+   * @dev See {IVIP180-balanceOf}.
    */
   function balanceOf(address account) public view override returns (uint256) {
     return _balances[account];
   }
 
   /**
-   * @dev See {IBEP20-transfer}.
+   * @dev See {IVIP180-transfer}.
    *
    * Requirements:
    *
@@ -446,14 +443,14 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
   }
 
   /**
-   * @dev See {IBEP20-allowance}.
+   * @dev See {IVIP180-allowance}.
    */
   function allowance(address owner, address spender) public view override returns (uint256) {
     return _allowances[owner][spender];
   }
 
   /**
-   * @dev See {IBEP20-approve}.
+   * @dev See {IVIP180-approve}.
    *
    * Requirements:
    *
@@ -465,10 +462,10 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
   }
 
   /**
-   * @dev See {IBEP20-transferFrom}.
+   * @dev See {IVIP180-transferFrom}.
    *
    * Emits an {Approval} event indicating the updated allowance. This is not
-   * required by the EIP. See the note at the beginning of {BEP20};
+   * required by the EIP. See the note at the beginning of {VIP180};
    *
    * Requirements:
    * - `sender` and `recipient` cannot be the zero address.
@@ -485,7 +482,7 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
     _approve(
       sender,
       _msgSender(),
-      _allowances[sender][_msgSender()].sub(amount, "BEP20: transfer amount exceeds allowance")
+      _allowances[sender][_msgSender()].sub(amount, "VIP180: transfer amount exceeds allowance")
     );
     return true;
   }
@@ -494,7 +491,7 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
    * @dev Atomically increases the allowance granted to `spender` by the caller.
    *
    * This is an alternative to {approve} that can be used as a mitigation for
-   * problems described in {IBEP20-approve}.
+   * problems described in {IVIP180-approve}.
    *
    * Emits an {Approval} event indicating the updated allowance.
    *
@@ -511,7 +508,7 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
    * @dev Atomically decreases the allowance granted to `spender` by the caller.
    *
    * This is an alternative to {approve} that can be used as a mitigation for
-   * problems described in {IBEP20-approve}.
+   * problems described in {IVIP180-approve}.
    *
    * Emits an {Approval} event indicating the updated allowance.
    *
@@ -525,7 +522,7 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
     _approve(
       _msgSender(),
       spender,
-      _allowances[_msgSender()][spender].sub(subtractedValue, "BEP20: decreased allowance below zero")
+      _allowances[_msgSender()][spender].sub(subtractedValue, "VIP180: decreased allowance below zero")
     );
     return true;
   }
@@ -549,10 +546,10 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
     address recipient,
     uint256 amount
   ) internal {
-    require(sender != address(0), "BEP20: transfer from the zero address");
-    require(recipient != address(0), "BEP20: transfer to the zero address");
+    require(sender != address(0), "VIP180: transfer from the zero address");
+    require(recipient != address(0), "VIP180: transfer to the zero address");
 
-    _balances[sender] = _balances[sender].sub(amount, "BEP20: transfer amount exceeds balance");
+    _balances[sender] = _balances[sender].sub(amount, "VIP180: transfer amount exceeds balance");
     _balances[recipient] = _balances[recipient].add(amount);
     emit Transfer(sender, recipient, amount);
   }
@@ -567,7 +564,7 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
    * - `to` cannot be the zero address.
    */
   function _mint(address account, uint256 amount) internal {
-    require(account != address(0), "BEP20: mint to the zero address");
+    require(account != address(0), "VIP180: mint to the zero address");
 
     _totalSupply = _totalSupply.add(amount);
     _balances[account] = _balances[account].add(amount);
@@ -586,9 +583,9 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
    * - `account` must have at least `amount` tokens.
    */
   function _burn(address account, uint256 amount) internal {
-    require(account != address(0), "BEP20: burn from the zero address");
+    require(account != address(0), "VIP180: burn from the zero address");
 
-    _balances[account] = _balances[account].sub(amount, "BEP20: burn amount exceeds balance");
+    _balances[account] = _balances[account].sub(amount, "VIP180: burn amount exceeds balance");
     _totalSupply = _totalSupply.sub(amount);
     emit Transfer(account, address(0), amount);
   }
@@ -611,8 +608,8 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
     address spender,
     uint256 amount
   ) internal {
-    require(owner != address(0), "BEP20: approve from the zero address");
-    require(spender != address(0), "BEP20: approve to the zero address");
+    require(owner != address(0), "VIP180: approve from the zero address");
+    require(spender != address(0), "VIP180: approve to the zero address");
 
     _allowances[owner][spender] = amount;
     emit Approval(owner, spender, amount);
@@ -629,62 +626,7 @@ contract BEP20 is BEPContext, IBEP20, BEPPausable {
     _approve(
       account,
       _msgSender(),
-      _allowances[account][_msgSender()].sub(amount, "BEP20: burn amount exceeds allowance")
+      _allowances[account][_msgSender()].sub(amount, "VIP180: burn amount exceeds allowance")
     );
-  }
-}
-
-/**
- * @dev Optional functions from the BEP20 standard.
- */
-abstract contract BEP20Detailed {
-  string private _name;
-  string private _symbol;
-  uint8 private _decimals;
-
-  /**
-   * @dev Sets the values for `name`, `symbol`, and `decimals`. All three of
-   * these values are immutable: they can only be set once during
-   * construction.
-   */
-  constructor(
-    string memory name_,
-    string memory symbol_,
-    uint8 decimals_
-  ) {
-    _name = name_;
-    _symbol = symbol_;
-    _decimals = decimals_;
-  }
-
-  /**
-   * @dev Returns the name of the token.
-   */
-  function name() public view returns (string memory) {
-    return _name;
-  }
-
-  /**
-   * @dev Returns the symbol of the token, usually a shorter version of the
-   * name.
-   */
-  function symbol() public view returns (string memory) {
-    return _symbol;
-  }
-
-  /**
-   * @dev Returns the number of decimals used to get its user representation.
-   * For example, if `decimals` equals `2`, a balance of `505` tokens should
-   * be displayed to a user as `5,05` (`505 / 10 ** 2`).
-   *
-   * Tokens usually opt for a value of 18, imitating the relationship between
-   * Ether and Wei.
-   *
-   * NOTE: This information is only used for _display_ purposes: it in
-   * no way affects any of the arithmetic of the contract, including
-   * {IBEP20-balanceOf} and {IBEP20-transfer}.
-   */
-  function decimals() public view returns (uint8) {
-    return _decimals;
   }
 }
