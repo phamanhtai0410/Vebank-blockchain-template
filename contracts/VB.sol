@@ -9,6 +9,7 @@ import './VIP180.sol';
 
 contract VB is VIP180 {
     constructor() VIP180("VeBank Token", "VB") {
+        // Mint and/then transfer to Vesting wallets.
         _mint(msg.sender, 1000 * 10 ** 6 * (10 ** 18));
     }
 }

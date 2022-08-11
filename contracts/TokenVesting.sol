@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import "./VIP180.sol";
 
-abstract contract TokenVesting is BEPOwnable {
+abstract contract TokenVesting is Ownable {
   using SafeMath for uint256;
 
   // Address of VB Token.

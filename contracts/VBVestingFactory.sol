@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 import "./TokenVesting.sol";
 
 // IMPORTANT: The monthly unvesting is unleaseed at the end of each month (30 days), so that the Cliff is substracted by 1 month.
+// Vesting schedule and wallet base on tokenomics at 01/08/2022.
 
 /**
  * @dev PrivateSaleVBVesting will be locked at for 6 months.
@@ -138,9 +139,9 @@ contract VBVestingFactory {
   // put the startAtTimeStamp here
   // 1667343610 : Tuesday, November 1, 2022 11:00:10 PM.
   // To test all contracts, change this timestamp to time in the past.
-  uint256 public startAtTimeStamp = 1667343610;
+  uint256 public startAtTimeStamp = 1660234560;
 
-  // Each month equals 30 days: 30*24*60*60. Note: change this value to 300 to test on testnet
+  // Each month equals 30 days: 30*24*60*60 = 2592000. Note: change this value to 300 to test on testnet
   uint256 internal constant _SECONDS_PER_MONTH = 2592000;
 
   // address to track other information
