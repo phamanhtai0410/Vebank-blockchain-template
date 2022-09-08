@@ -4,7 +4,7 @@ const { exit } = require("process");
 require('dotenv').config({path: path.resolve(__dirname, "../.env")});
 const VBAirdrop = artifacts.require("VBAirdrop");
 const VB = artifacts.require("VB");
-const DEPLOY_NEW = false;
+const DEPLOY_NEW = true;
 
 const _TOKEN_ADDRESS = process.env.iVB; // VeBank address 
 const _startAtTimeStamp = 1658735404 + 12*60 ; // Monday, July 25, 2022 7:50:04 AM  . NOTE  : after listing on Dex 12 hours

@@ -3,7 +3,7 @@ const path = require("path");
 require('dotenv').config({path: path.resolve(__dirname, "../.env")});
 const VEUSDIdo = artifacts.require("VEUSDIdo");
 const VEUSD = artifacts.require("VEUSD");
-const DEPLOY_NEW = false;
+const DEPLOY_NEW = true;
 
 //parameter function initialize, must run first
 const _coinToken = process.env.iVEUSD; // VEUSD address 

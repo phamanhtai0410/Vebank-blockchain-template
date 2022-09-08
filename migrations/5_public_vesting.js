@@ -1,9 +1,9 @@
 var fs = require("fs")
 const path = require("path");
 require('dotenv').config({path: path.resolve(__dirname, "../.env")});
-const PublicSaleVBVesting = artifacts.require("PublicSaleVBVesting");
+const PublicVBVesting = artifacts.require("PublicVBVesting");
 const VB = artifacts.require("VB");
-const DEPLOY_NEW = false;
+const DEPLOY_NEW = true;
 
 const _TOKEN_ADDRESS = process.env.iVB; // VeBank address 
 const _startAtTimeStamp = 1658735404 ; // Monday, July 25, 2022 7:50:04 AM
@@ -16,43 +16,43 @@ function wf(name, address) {
 
 module.exports = async function (deployer) {
   if(DEPLOY_NEW){
-  await deployer.deploy(PublicSaleVBVesting, _TOKEN_ADDRESS, _startAtTimeStamp, _SECONDS_PER_MONTH);
-  var iPublicSaleVBVesting = await PublicSaleVBVesting.deployed();
-  wf("iPublicSaleVBVesting", iPublicSaleVBVesting.address);
+  await deployer.deploy(PublicVBVesting, _TOKEN_ADDRESS, _startAtTimeStamp, _SECONDS_PER_MONTH);
+  var iPublicVBVesting = await PublicVBVesting.deployed();
+  wf("iPublicVBVesting", iPublicVBVesting.address);
   } else {
     const iVB = await VB.at(process.env.iVB);
-    const iPublicSaleVBVesting = await PublicSaleVBVesting.at(process.env.iPublicSaleVBVesting)
+    const iPublicVBVesting = await PublicVBVesting.at(process.env.iPublicVBVesting)
     async function approve_Pool(_amount){
-      await iVB.approve(process.env.iPublicSaleVBVesting, _amount);
+      await iVB.approve(process.env.iPublicVBVesting, _amount);
       console.log("Approved!")
     }
     async function add_Beneficiary(_beneficiary, _amount ){
-      await iPublicSaleVBVesting.addBeneficiary(_beneficiary, _amount );
+      await iPublicVBVesting.addBeneficiary(_beneficiary, _amount );
       console.log("Beneficiary: ",_beneficiary);
     }
     async function revoke_Beneficiary(_beneficiary){
 
-      await iPublicSaleVBVesting.withdrawBeneficiary(_beneficiary);
+      await iPublicVBVesting.withdrawBeneficiary(_beneficiary);
       console.log("revoked beneficiary: ", _beneficiary);
     }
 
     async function claim_Token(_beneficiary){
       
-      await iPublicSaleVBVesting.claimVestedToken(_beneficiary);
+      await iPublicVBVesting.claimVestedToken(_beneficiary);
       console.log("claimed!")
     }
     async function transfer_Ownership(_newOwner){
-      await iPublicSaleVBVesting.transferOwnership(_newOwner);
+      await iPublicVBVesting.transferOwnership(_newOwner);
       console.log("Transfer new Owner is: ", _newOwner );
     }
     async function withdraw_All(){
-      await iPublicSaleVBVesting.withdrawAll();
+      await iPublicVBVesting.withdrawAll();
       console.log("Withdraw all!")
 
     }
     async function get_Beneficiary(_beneficiary){
       
-      let {initialBalance, monthsClaimed, totalClaimed,claimedAtTGE, tokenClaimable}  = await iPublicSaleVBVesting.getBeneficiary(_beneficiary);
+      let {initialBalance, monthsClaimed, totalClaimed,claimedAtTGE, tokenClaimable}  = await iPublicVBVesting.getBeneficiary(_beneficiary);
       console.log("info initialBalance : ", initialBalance.toString());
       console.log("info monthsClaimed : ", monthsClaimed.toString());
       console.log("info totalClaimed : ", totalClaimed.toString());
@@ -60,11 +60,11 @@ module.exports = async function (deployer) {
       console.log("info claimClaimable : ", tokenClaimable.toString());
     }
     async function get_List_Beneficiaries(_index){
-      // let len = (await iPublicSaleVBVesting.listBeneficiaries.call().length())
+      // let len = (await iPublicVBVesting.listBeneficiaries.call().length())
       // console.log("length: " , len)
       for (let id =0 ; id < _index; id++){
-        let addressBeneficiary =  (await iPublicSaleVBVesting.listBeneficiaries.call(id)).addressBeneficiary;
-        let initialBalance =  (await iPublicSaleVBVesting.listBeneficiaries.call(id)).initialBalance.toString();
+        let addressBeneficiary =  (await iPublicVBVesting.listBeneficiaries.call(id)).addressBeneficiary;
+        let initialBalance =  (await iPublicVBVesting.listBeneficiaries.call(id)).initialBalance.toString();
         console.log(`Beneficiary ${addressBeneficiary} has initial Balance: ${initialBalance}`)
       }
       
@@ -79,7 +79,7 @@ module.exports = async function (deployer) {
     //await get_Beneficiary("0xf44d0fdb0c02b8683aCf300a7a892a30aCb17d84");
     //await claim_Token("0xf44d0fdb0c02b8683aCf300a7a892a30aCb17d84");
     //await withdraw_All();
-    //await console.log("beneficiary 1: " , await iPublicSaleVBVesting.listBeneficiaries())
+    //await console.log("beneficiary 1: " , await iPublicVBVesting.listBeneficiaries())
     //await const {a,b} = test;
     //await console.log(a)
     //await get_List_Beneficiaries(7)

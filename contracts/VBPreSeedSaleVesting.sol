@@ -8,18 +8,18 @@ import "./TokenVesting.sol";
 // IMPORTANT: The monthly unvesting is unleaseed at the end of each month.
 
 /**
- * @dev VBAirdrop will be claimed 10% after listing on Dex 12 hours, release 15% each month
- * The vestingDuration is 6 months. Each month is 15%.
- * No cliff.
+ * @dev PreSeedVBVesting will be locked at TGE
+ * Hence, the vestingDuration should be 24 months (24 * 4.167% = 100%)
+ * The Cliff is 6 months (the first monthly claim will be enabled 210 days after the TGE)
  */
-contract VBAirdrop is TokenVesting {
-
+contract PreSeedVBVesting is TokenVesting {
+  
   // @dev constructor creates the vesting contract
   // @param _token Address of VB token
   // @param _owner Address of owner of this contract
   // @param _vestingStartAt the starting timestamp of vesting , in seconds.
   // @param _monthlyDuration the duration since monthlyStartAt until the vesting ends, in months.
-  // @param _percentClaimAtTGE the percent of vested token that can be claimed after TGE. input 7 for 7%
+  // @param _percentClaimAtTGE the percent of vested token that can be claimed after TGE. input 0 for 0%
   // @param _vestingCliff the cooldown period after _vestingStartAt, so that the monthly vesting will start, in seconds.
   // @param _percentUnleasePerMonth the percent of vested token which can be claimed per month;
   // @param _secondPerMonth the second per month. Each month equals 30 days
@@ -27,5 +27,5 @@ contract VBAirdrop is TokenVesting {
     address _TOKEN_ADDRESS,
     uint256 _startAtTimeStamp,
     uint256 _SECONDS_PER_MONTH
-  ) TokenVesting(_TOKEN_ADDRESS, msg.sender, _startAtTimeStamp, 6, 10, 0,_SECONDS_PER_MONTH) {}
+  ) TokenVesting(_TOKEN_ADDRESS, msg.sender, _startAtTimeStamp, 6, 20, (3 *_SECONDS_PER_MONTH),_SECONDS_PER_MONTH) {}
 }

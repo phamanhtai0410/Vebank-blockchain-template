@@ -3,7 +3,7 @@ const path = require("path");
 require('dotenv').config({path: path.resolve(__dirname, "../.env")});
 const WVETIdo = artifacts.require("WVETIdo");
 const WVET = artifacts.require("WVET");
-const DEPLOY_NEW = false;
+const DEPLOY_NEW = true;
 
 const _coinToken = process.env.iWVET; // VeBank address 
 const _idoStartAt = 1658735404 ; // Monday, July 25, 2022 7:50:04 AM

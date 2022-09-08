@@ -6,13 +6,12 @@ pragma solidity ^0.8.0;
 import "./TokenVesting.sol";
 
 /**
- * @dev PublicSaleVBVesting (IDO) will be claimed 20% at TGE, and release 13.333% each month.
+ * @dev PublicVBVesting (IDO) will be claimed 20% at TGE, and release 13.333% each month.
  * The vestingDuration is 6 months. Each month is 13.333%.
  * The Cliff is 0 because the first time monthly claiming started 1 month after TGE
  *
  */
-contract PublicSaleVBVesting is TokenVesting {
-
+contract PublicVBVesting is TokenVesting {
   // @dev constructor creates the vesting contract
   // @param _token Address of VB token
   // @param _owner Address of owner of this contract

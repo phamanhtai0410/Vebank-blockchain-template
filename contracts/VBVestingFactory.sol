@@ -13,11 +13,26 @@ import "./TokenVesting.sol";
 
 
 /**
- * @dev PrivateSaleVBVesting will be claimed 5% at TGE.
+ * @dev PreSeedSaleVBVesting will be claimed 5% at TGE.
  * Hence, the vestingDuration should be 24 months.
  * The Cliff is 0.
  */
-contract PrivateVBVesting is TokenVesting {
+contract PreSeedVBVesting is TokenVesting {
+  constructor(
+    address _token,
+    address _owner,
+    uint256 _TGETimeStamp,
+    uint256 _SECONDS_PER_MONTH
+  ) TokenVesting(_token, _owner, _TGETimeStamp, 24, 5, 0, _SECONDS_PER_MONTH) {}
+}
+
+
+ /**
+ * @dev SeedSaleVBVesting will be claimed 5% at TGE.
+ * Hence, the vestingDuration should be 24 months.
+ * The Cliff is 0.
+ */
+contract SeedVBVesting is TokenVesting {
   constructor(
     address _token,
     address _owner,
@@ -166,7 +181,8 @@ contract VBVestingFactory {
   // address to track other information
   address public owner;
 
-  address public privateVBVesting;
+  address public preSeedVBVesting;
+  address public seedVBVesting;
   address public publicVBVesting;
   address public stakeFarmVBVesting;
   address public lendVBVesting;
@@ -181,12 +197,20 @@ contract VBVestingFactory {
     owner = msg.sender;
 
 
-    PrivateVBVesting _privateVBVesting = new PrivateVBVesting(
+    PreSeedVBVesting _preSeedVBVesting = new PreSeedVBVesting(
       VB_TOKEN_ADDRESS,
       owner,
       startAtTimeStamp,
       _SECONDS_PER_MONTH);
-    privateVBVesting = address(_privateVBVesting);
+    preSeedVBVesting = address(_preSeedVBVesting);
+
+    SeedVBVesting _seedVBVesting = new SeedVBVesting(
+      VB_TOKEN_ADDRESS,
+      owner,
+      startAtTimeStamp,
+      _SECONDS_PER_MONTH);
+    seedVBVesting = address(_seedVBVesting);
+
 
     PublicVBVesting _publicVBVesting = new PublicVBVesting(
       VB_TOKEN_ADDRESS,
