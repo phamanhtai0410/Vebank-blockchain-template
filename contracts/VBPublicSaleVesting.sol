@@ -6,8 +6,8 @@ pragma solidity ^0.8.0;
 import "./TokenVesting.sol";
 
 /**
- * @dev PublicVBVesting (IDO) will be claimed 20% at TGE, and release 13.333% each month.
- * The vestingDuration is 6 months. Each month is 13.333%.
+ * @dev PublicVBVesting (IDO) will be claimed 5% at TGE, and release 15.833% each month.
+ * The vestingDuration is 6 months. Each month is 15.833%.
  * The Cliff is 0 because the first time monthly claiming started 1 month after TGE
  *
  */
@@ -17,7 +17,7 @@ contract PublicVBVesting is TokenVesting {
   // @param _owner Address of owner of this contract
   // @param _vestingStartAt the starting timestamp of vesting , in seconds.
   // @param _monthlyDuration the duration since monthlyStartAt until the vesting ends, in months.
-  // @param _percentClaimAtTGE the percent of vested token that can be claimed after TGE. input 20 for 20%
+  // @param _percentClaimAtTGE the percent of vested token that can be claimed after TGE. input 5 for 5%
   // @param _vestingCliff the cooldown period after _vestingStartAt, so that the monthly vesting will start, in seconds.
   // @param _percentUnleasePerMonth the percent of vested token which can be claimed per month;
   // @param _secondPerMonth the second per month. Each month equals 30 days
@@ -25,5 +25,5 @@ contract PublicVBVesting is TokenVesting {
     address _TOKEN_ADDRESS,
     uint256 _startAtTimeStamp,
     uint256 _SECONDS_PER_MONTH
-  ) TokenVesting(_TOKEN_ADDRESS, msg.sender, _startAtTimeStamp, 6, 20, 0, _SECONDS_PER_MONTH) {}
+  ) TokenVesting(_TOKEN_ADDRESS, msg.sender, _startAtTimeStamp, 6, 5, 0, _SECONDS_PER_MONTH) {}
 }

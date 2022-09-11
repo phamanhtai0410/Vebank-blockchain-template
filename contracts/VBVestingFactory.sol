@@ -103,7 +103,7 @@ contract LiquidityVBVesting is TokenVesting {
 /**
  * @dev CoreTeamVBVesting will be blocked for 12 months (team & advisors).
  * Hence, the vestingDuration should be 36 months.
- * The Cliff is 12 months (the first monthly claim will be enabled 11*30 days after the TGE).
+ * The Cliff is 12 months (the first monthly claim will be enabled 12*30 days after the TGE).
  */
 contract CoreTeamVBVesting is TokenVesting {
   constructor(
@@ -111,7 +111,7 @@ contract CoreTeamVBVesting is TokenVesting {
     address _owner,
     uint256 _TGETimeStamp,
     uint256 _SECONDS_PER_MONTH
-  ) TokenVesting(_token, _owner, _TGETimeStamp, 36, 0, (11 * _SECONDS_PER_MONTH), _SECONDS_PER_MONTH) {}
+  ) TokenVesting(_token, _owner, _TGETimeStamp, 36, 0, (12 * _SECONDS_PER_MONTH), _SECONDS_PER_MONTH) {}
 }
 
 

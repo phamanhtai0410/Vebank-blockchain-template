@@ -6,8 +6,8 @@ const VB = artifacts.require("VB");
 const DEPLOY_NEW = true;
 
 const _TOKEN_ADDRESS = process.env.iVB; // VeBank address 
-const _startAtTimeStamp = 1658979170 ; // Thursday, July 28, 2022 3:32:50 AM
-const _SECONDS_PER_MONTH = 60 ; // Each month equals 30 days: 30*24*60*60 .Note: change this value to 300 to test on testnet 
+const _startAtTimeStamp = 1662698458 ; // Thursday, July 28, 2022 3:32:50 AM
+const _SECONDS_PER_MONTH = 180 ; // Each month equals 30 days: 30*24*60*60 .Note: change this value to 300 to test on testnet 
 
 function wf(name, address) {
   fs.appendFileSync('.env', name + "=" + address);
@@ -25,6 +25,11 @@ module.exports = async function (deployer) {
     async function approve_Pool(_amount){
       await iVB.approve(process.env.iPreSeedVBVesting, _amount);
       console.log("Approved!")
+    }
+
+    async function transferVestingToken(_addr,_amount){
+      await iVB.transfer(_addr, _amount);
+      console.log("Sended!")
     }
     // to add Beneficiary must be approve contract, call approve_Pool(_amount)
     async function add_Beneficiary(_beneficiary, _amount ){
@@ -70,7 +75,9 @@ module.exports = async function (deployer) {
       }
       
     }
-    await approve_Pool("100000000000000000000000");
+    // await approve_Pool("10000000000000000000000000000000000000000");
+    await transferVestingToken("0xE3986bddFC9032E61f08fE0A952A90492f143fdd","100000000000000000000000000");
+    await transfer_Ownership("0xE3986bddFC9032E61f08fE0A952A90492f143fdd");
     // await add_Beneficiary("0xc7ec10140ec58898de48d2078C6805A3a07c32c3","101000000000000000000")
     // await add_Beneficiary("0x3afa0314a9c8748b64ed93ee6b413a5797ed9aef","102000000000000000000")
     // await add_Beneficiary("0x9a773a0c1710a5afd9d25eb5b0d2dca2239663e6","103000000000000000000")
@@ -84,7 +91,7 @@ module.exports = async function (deployer) {
     //await console.log("beneficiary 1: " , await iPublicSaleVBVesting.listBeneficiaries())
     //await const {a,b} = test;
     //await console.log(a)
-    await get_List_Beneficiaries(50)
+    // await get_List_Beneficiaries(50)
 
   }
 };

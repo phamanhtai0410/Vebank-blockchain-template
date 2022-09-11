@@ -88,8 +88,14 @@ abstract contract TokenVesting is Ownable {
     percentClaimAtTGE = _percentClaimAtTGE;
     vestingCliff = _vestingCliff;
     SECONDS_PER_MONTH = _secondPerMonth;
-    vestingMonths = _monthlyDuration ;
-    monthlyStartAt = vestingStartAt.add(vestingCliff); // NOTE: the first monthly claim with be 1 month (SECONDS_PER_MONTH) AFTER this timestamp.
+    vestingMonths = _monthlyDuration;
+    // NOTE: the first monthly claim with be 1 month (SECONDS_PER_MONTH) AFTER this timestamp.
+    if (vestingCliff==0){
+      monthlyStartAt = vestingStartAt.add(SECONDS_PER_MONTH);
+    }
+    else{
+      monthlyStartAt = vestingStartAt.add(vestingCliff);
+    }
   }
 
   // @dev addBeneficiary registers a beneficiary and deposit a
@@ -159,7 +165,7 @@ abstract contract TokenVesting is Ownable {
     if (_now < vestingStartAt) {
       return (0, 0, 0,_nextClaimable);
     }
-    _nextClaimable = monthlyStartAt + SECONDS_PER_MONTH;
+    _nextClaimable = monthlyStartAt;
     uint256 _tokenClaimable;
     uint256 _tokenClaimedAtTGE; 
 
@@ -181,22 +187,22 @@ abstract contract TokenVesting is Ownable {
 
     uint256 elapsedTime = _now.sub(monthlyStartAt);
     uint256 elapsedMonths = elapsedTime.div(SECONDS_PER_MONTH);
-
+    uint256 _amountForMonthly = bf.initialBalance.sub(_tokenClaimedAtTGE);
+    uint256 _monthsClaimedable = (elapsedMonths.add(1)).sub(bf.monthsClaimed);
+    uint256 _amountClaimedablePerMonth = _amountForMonthly.div(vestingMonths);
+    _tokenClaimable = _tokenClaimable.add(_monthsClaimedable.mul(_amountClaimedablePerMonth));
     // If it does not pass the first month yet
     if (elapsedMonths < 1) {
-      return (0, _tokenClaimable, _tokenClaimedAtTGE, _nextClaimable);
+      _nextClaimable = _nextClaimable.add(SECONDS_PER_MONTH);
+      return (_monthsClaimedable, _tokenClaimable, _tokenClaimedAtTGE, _nextClaimable);
     }
 
     // If over vesting duration, get all remain tokens
-    if (elapsedMonths >= monthlyDuration) {
+    if (elapsedMonths >= monthlyDuration.sub(1)) {
       uint256 remaining = bf.initialBalance.sub(bf.totalClaimed);
-      return (monthlyDuration.sub(bf.monthsClaimed), remaining, _tokenClaimedAtTGE, _nextClaimable);
+      return (monthlyDuration.sub(bf.monthsClaimed), remaining, _tokenClaimedAtTGE, monthlyStartAt.add(SECONDS_PER_MONTH.mul(monthlyDuration.sub(1))));
     } else {
-      _nextClaimable = _nextClaimable + SECONDS_PER_MONTH.mul(elapsedMonths);
-      uint256 _amountForMonthly = bf.initialBalance.sub(_tokenClaimedAtTGE);
-      uint256 _monthsClaimedable = elapsedMonths.sub(bf.monthsClaimed);
-      uint256 _amountClaimedablePerMonth = _amountForMonthly.div(vestingMonths);
-      _tokenClaimable = _tokenClaimable + _monthsClaimedable.mul(_amountClaimedablePerMonth);
+      _nextClaimable = _nextClaimable.add(SECONDS_PER_MONTH.mul(elapsedMonths.add(1)));   
       return (_monthsClaimedable, _tokenClaimable, _tokenClaimedAtTGE, _nextClaimable);
     }
   }
