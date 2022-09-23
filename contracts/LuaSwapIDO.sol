@@ -1,164 +1,10 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
-
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-
-
-contract AccessControl {
-    using SafeERC20 for IERC20;
-
-    address payable public owner;
-
-    event SetOperator(address indexed add, bool value);
-
-    constructor(address _ownerAddress) public {
-        owner = payable(_ownerAddress);
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
-
-    function setOwner(address payable _newOwner) external onlyOwner {
-        require(_newOwner != address(0));
-        owner = _newOwner;
-    }
-
-    function emergencyWithdraw(address _token, address payable _to, uint256 amount) external onlyOwner {
-        if (_token == address(0x0)) {
-            amount = amount != 0 ? amount : address(this).balance;
-            payable(_to).transfer(amount);
-        }
-        else {
-            amount = amount != 0 ? amount : IERC20(_token).balanceOf(address(this));
-            IERC20(_token).safeTransfer(_to, amount);
-        }
-    }
-}
-
-
-contract LuaVesting is AccessControl {
-    using SafeMath for uint256;
-    using SafeERC20 for IERC20;
-    address public IDOContract;
-
-    struct UserInfo {
-        uint256 amount;
-        uint256 claimedAmount;
-        uint256 claimAtsTime;
-    }
-
-    mapping(address => UserInfo) public info;
-    address public idoToken;
-    address[] public users;
-
-    uint256[] public claimPercents;     //[20, 40, 40]
-    uint256[] public claimAts;          //[A, B, C]
-
-    constructor(address _owner, uint256[] memory _claimPercent, uint256[] memory _claimAts, address _idoToken) public AccessControl(_owner) {
-        require(_claimAts.length == _claimPercent.length, "LuaVesting: Wrong data");
-        uint s = 0;
-        for (uint i = 0; i < _claimPercent.length; i++) {
-            s += _claimPercent[i];
-        }
-        require(s == 100, "LuaVesting: Wrong percent");
-        require(_claimAts[0] > 0, "LuaVesting: Wrong _claimAts[0]"); // TGE
-        claimPercents = _claimPercent;
-        claimAts = _claimAts;
-        idoToken = _idoToken;
-    }
-
-    modifier onlyIDO() {
-        require(msg.sender == IDOContract);
-        _;
-    }    
-
-    function getVestingLength() public view returns (uint256) {
-        return claimAts.length;
-    }
-
-    function setIDO(address _newIDO) external onlyOwner {
-        require(_newIDO != address(0));
-        IDOContract = _newIDO;
-    }
-
-    function _estimateClaim(address user, uint blockTime) private view returns (uint256 amount, uint256 claimAt) {
-        amount = 0;
-        UserInfo memory ui = info[user];
-
-        claimAt = ui.claimAtsTime;
-
-        for (uint i = 0; i < claimAts.length; i++) {
-            uint b = claimAts[i];
-            uint p = claimPercents[i];
-
-            if (ui.claimAtsTime < b && b < blockTime) {
-                if (i <= claimAts.length - 2) {
-                    amount += ui.amount.mul(p).div(100);
-                }
-                else {
-                    amount = ui.amount.sub(ui.claimedAmount);
-                }
-                claimAt = b;
-            }
-        }
-
-        if (ui.claimedAmount.add(amount) > ui.amount) {
-            amount = ui.amount.sub(ui.claimedAmount);
-        }
-    }
-
-    function _claim(address user) private {
-        UserInfo storage ui = info[user];
-        require(ui.amount > 0, "LuaVesting: Wrong data");
-        (uint amount, uint claimAt) = _estimateClaim(user, block.timestamp);
-
-        ui.claimedAmount = ui.claimedAmount.add(amount);
-        ui.claimAtsTime = claimAt;
-
-        IERC20(idoToken).transfer(user, amount);
-    }
-
-    function vestingFor(address add, uint userAmount) public onlyIDO {
-        UserInfo storage ui = info[add];
-        if (ui.amount == 0) {
-            users.push(add);
-        }
-        ui.amount = ui.amount.add(userAmount);
-        _claim(add);
-    }
-
-    function claim() public {
-        _claim(msg.sender);
-    }
-
-    function estimateClaim(address user, uint blockTime) public view returns (uint256 amount) {
-        (amount, ) = _estimateClaim(user, blockTime);
-    }
-
-    function updateVesting(uint256[] memory _claimPercent, uint256[] memory _claimAts) public onlyOwner {
-        require(_claimAts.length == _claimPercent.length, "LuaVesting: Wrong data");
-        uint s = 0;
-        for (uint i = 0; i < _claimPercent.length; i++) {
-            s += _claimPercent[i];
-        }
-        require(s == 100, "LuaVesting: Wrong percent");
-        require(_claimAts[0] > 0, "LuaVesting: Wrong _claimAts[0]"); // TGE
-        claimPercents = _claimPercent;
-        claimAts = _claimAts;
-    }
-}
-
 // File: contracts/contracts-v2/LuaSwapIDO.sol
-
+//SPDX-License-Identifier: Unlicense
 pragma solidity 0.6.12;
+pragma experimental ABIEncoderV2;
 
+import "./AccessControl.sol";
+import "./LuaVesting.sol";
 
 
 contract LuaSwapIDO is AccessControl {
@@ -199,6 +45,10 @@ contract LuaSwapIDO is AccessControl {
     address public signer;
     address public signerClaim;
     LuaVesting public vesting;
+
+    string public chainName;
+
+    event EncodeMessage(bytes encodeData);
 
     event CreateIDO(uint256 indexed index, address indexed sender, IDO ido);
     event Commit(
@@ -271,21 +121,46 @@ contract LuaSwapIDO is AccessControl {
         _;
     }
 
-    function getChainID() private pure returns (uint256) {
-        uint256 id;
-        assembly {
-            id := chainid()
-        }
-        return id;
+    function setChainName(string memory _chainName) external onlyOwner {
+        chainName = _chainName;
     }
 
-    function verifyProof(address _signer, bytes memory _encode, Proof memory _proof) private view returns (bool) {
+    function getChainName() internal view returns (string memory) {
+        return chainName;
+    }
+
+    function verifyProof(address _signer, bytes memory _encode, Proof memory _proof) public view returns (bool) {
         if (_signer == address(0x0)) {
             return true;
         }
-        bytes32 digest = keccak256(abi.encodePacked(getChainID(), address(this), _proof.deadline, _encode));
+        bytes32 digest = keccak256(abi.encodePacked(getChainName(), address(this), _proof.deadline, _encode));
         address signatory = ecrecover(digest, _proof.v, _proof.r, _proof.s);
         return signatory == _signer && _proof.deadline >= block.timestamp;
+    }
+
+    function verifyProofSigner(address _signer, bytes memory _encode, Proof memory _proof) public view returns (bool) {
+        if (_signer == address(0x0)) {
+            return true;
+        }
+        bytes32 digest = keccak256(abi.encodePacked(getChainName(), address(this), _proof.deadline, _encode));
+        address signatory = ecrecover(digest, _proof.v, _proof.r, _proof.s);
+        return signatory == _signer;
+    }
+
+    function verifyProofTime(address _signer,Proof memory _proof) public view returns (bool) {
+        if (_signer == address(0x0)) {
+            return true;
+        }
+        return _proof.deadline >= block.timestamp;
+    }
+
+    function verifyProoftoAddr(address _signer, bytes memory _encode, Proof memory _proof) public view returns (address) {
+        if (_signer == address(0x0)) {
+            return _signer;
+        }
+        bytes32 digest = keccak256(abi.encodePacked(getChainName(), address(this), _proof.deadline, _encode));
+        address signatory = ecrecover(digest, _proof.v, _proof.r, _proof.s);
+        return signatory;
     }
 
     function numberOfIDO() public view returns (uint256) {
@@ -407,8 +282,9 @@ contract LuaSwapIDO is AccessControl {
 
     function updateInfo(uint index, uint256 minAmountPay, uint256 maxAmountPay, uint256 openAt, uint256 closeAt, uint256 claimAt) public 
         onlyOwner() 
-        existIDO(index)
-        notOpen(index) {
+        // existIDO(index)
+        // notOpen(index) 
+        {
         IDO storage ido = IDOs[index];
         ido.minAmountPay = minAmountPay;
         ido.maxAmountPay = maxAmountPay;
