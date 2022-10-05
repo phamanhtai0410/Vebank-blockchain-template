@@ -8,4 +8,3 @@ keystore
 contracts/ipfs*
 contracts/.deps*
 contracts/dependencies*
-migrations/*
